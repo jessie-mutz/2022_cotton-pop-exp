@@ -1,0 +1,17 @@
+
+model {
+  
+  for (i in 1:nObs) {
+    resp[i] ~ dbin(prob_resp[i], num_trials[i])
+    logit(prob_resp[i]) <- int + slope_dens*dens[i]
+  }
+  
+  slope_dens ~ dnorm(0, 0.001)
+  int ~ dnorm(0, 0.001)
+
+  for (i in 1:nDens) {
+    logit(pred[i]) <- int + slope_dens*dens_newdat[i]
+  }
+
+}
+

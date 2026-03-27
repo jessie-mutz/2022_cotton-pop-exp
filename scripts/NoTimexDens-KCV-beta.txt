@@ -1,0 +1,22 @@
+
+model {
+  
+  intPop ~ dnorm(0, 0.001)
+  slope_densPop ~ dnorm(0, 0.001)
+  
+  for (i in 1:nPop) {
+    respPop[i] ~ dbeta(alpha[i], beta[i])
+    alpha[i] <- mu_respPop[i] * phi
+    beta[i] <- ( 1 - mu_respPop[i] ) * phi
+    logit(mu_respPop[i]) <- intPop + slope_densPop*densPop[i]
+  }
+
+
+  for (j in 1:nDens) {
+    logit(pred[j]) <- intPop + slope_densPop*densPop_newdat[j]
+  }
+
+phi ~ dgamma(0.1,0.1)
+  
+}
+

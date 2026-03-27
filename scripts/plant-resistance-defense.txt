@@ -1,0 +1,39 @@
+
+model {
+
+  for (i in 1:nTimept) {
+    int[i] ~ dnorm(mu_int, tau_int)
+  }
+  
+#  for (i in 1:nGeno) {
+#    int_geno[i] ~ dnorm(mu_int_geno, tau_int_geno)
+#  }
+  
+  for (i in 1:nObs) {
+    resp[i] ~ dnorm(mu_resp[i], tau_resp)
+    mu_resp[i] <- int[timept[i]] + 
+                  #int_geno[geno[i]] +
+                  slope_tri*tri[i] + slope_gnd*gnd[i] + 
+                  slope_H10*H10[i] + slope_H36*H36[i] + 
+                  slope_resp*leaf_size[i]
+  }
+  
+  slope_tri ~ dnorm(0, 0.001)
+  slope_gnd ~ dnorm(0, 0.001)
+  slope_H10 ~ dnorm(0, 0.001)
+  slope_H36 ~ dnorm(0, 0.001)
+  slope_resp ~ dnorm(0, 0.001)
+  
+  sigma_resp ~ dunif(0, 10)
+  tau_resp <- 1/(sigma_resp*sigma_resp)
+  
+  mu_int ~ dnorm(0, 0.001)
+  sigma_int ~ dunif(0,10)
+  tau_int <- 1/(sigma_int*sigma_int)
+  
+#  mu_int_geno ~ dnorm(0, 0.001)
+#  sigma_int_geno ~ dunif(0,10)
+#  tau_int_geno <- 1/(sigma_int*sigma_int)
+
+}
+
