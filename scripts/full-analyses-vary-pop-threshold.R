@@ -686,3 +686,68 @@ rm(gna_out)
 
 }
 
+
+## =============================================================================
+## Effects of herbivore density on percent damage
+## =============================================================================
+
+## (1) Data prep
+# Subset the full data frame to columns that will be included in the model,
+#  then remove any rows with NAs.
+mod_df <- full_data[,c('Pop_ID', 'Plant_ID', 'Geno', 'Timepoint', 'Herb_add',
+                       'Sampling_Percent_damage')]
+mod_df <- na.omit(mod_df)
+
+# View table of how many plants per population have associated data.
+table(mod_df$Pop_ID)
+
+# all pops have >= 9 plants, no need to do threshold thing
+thresholds <- 7
+
+for (i in 1:length(thresholds)) {
+  
+  # Include only populations with at least thresholds[i] plant observations.
+  mod_df <- mod_df[which(mod_df$Pop_ID %in% names(which(table(mod_df$Pop_ID) >= thresholds[i]))),]
+  
+  # Get vectors of sequential integers, one designating plant genotype and one
+  #  designating population ID.
+  mod_df$Geno_ordered <- with(mod_df, as.numeric(as.factor(Geno)))
+  mod_df$Pop_ordered <- with(mod_df, as.numeric(as.factor(Pop_ID)))
+  
+  # Assign data vectors
+  dat.list <- data_vecs_resp(df = mod_df)
+  dat.list[['resp']] <- log(mod_df$Sampling_Percent_damage + 0.02) #response variable at plant scale
+  dat.list[['timeptPop']] <- as.numeric(dat.list[['timeptPop']])
+  
+  ## (2) Run model and check convergence
+  dam_1_lin <- jagsUI::jags(data = dat.list, parameters.to.save = params.est,
+                            model.file = "scripts/TimexDens-LinThr-Geno-NoMidvein.txt",
+                            n.thin = nt, n.chains = nc,
+                            n.burnin = nb, n.iter = ni, DIC = TRUE)
+  
+  print(list("Sampling percent damage", paste0("Min. plants = ", thresholds[i]),
+             dam_1_lin$summary))
+  
+  # Check traceplots and density plots to visually confirm convergence
+  pdf(file = paste0("output/full-dam-plots-min", thresholds[i], ".pdf"))
+  plot(dam_1_lin, parameters = params.fit)
+  
+  ## (3) Save output
+  # Use 'save_out' function to get posterior samples, summary statistics of
+  #  monitored variables, and population mean estimates.
+  dam_out <- save_out(model = dam_1_lin, dataframe = mod_df, pop_means = TRUE)
+  
+  # Save each list element as .csv in 'output' folder.
+  sink(paste0("output/full-dam-dat-min", thresholds[i], ".txt"))
+  print(dat.list)
+  sink()
+  
+  write.csv(dam_out[['samples']], paste0("output/full-dam-samples-min",
+                                         thresholds[i], ".csv"), row.names = FALSE)
+  write.csv(dam_out[['summary']], paste0("output/full-dam-summary-min",
+                                         thresholds[i], ".csv"))
+  write.csv(dam_out[['pop_means']], paste0("output/full-dam-pop-means-min",
+                                           thresholds[i], ".csv"))
+  rm(dam_out)
+  
+}
