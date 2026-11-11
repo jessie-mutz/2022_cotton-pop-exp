@@ -2,7 +2,7 @@
 This README file was updated on 2026-11-10.  
 
 A. Manuscript associated with this archive:  
-Mutz, J. & S. Kalisz. 2024. Multiple herbivore-induced defenses vary in timing but confer sustained resistance in experimental plant populations. Ecology.
+Mutz, J. & S. Kalisz. 2026. Multiple herbivore-induced defenses vary in timing but confer sustained resistance in experimental plant populations. Ecology.
 
 B. Author details:  
 Jessie Mutz, Dartmouth College (jessie.mutz@dartmouth.edu; corresponding author)  
@@ -17,7 +17,7 @@ Licenses/restrictions placed on the code: CC0 1.0 Universal (CC0 1.0) Public Dom
 
 
 ## OVERVIEW OF REPOSITORY CONTENTS  
-This data repository consists of raw and cleaned data files, R scripts, output files from statistical analyses, and figures.
+This repository consists of raw and cleaned data files, R scripts, output files from statistical analyses, and figures.
 
 ### Raw data files ("raw-data/."; all .CSV)
 
